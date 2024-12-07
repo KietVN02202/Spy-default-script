@@ -1,0 +1,148 @@
+game.Players.LocalPlayer.Character.HumanoidRootPart.CFrame = game.workspace.Origo.CFrame * CFrame.new(0, -5, 0)
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.Players.LocalPlayer.PlayerGui
+screenGui.ResetOnSpawn = false
+
+local frame = Instance.new("Frame")
+frame.Parent = screenGui
+frame.Size = UDim2.new(0, 300, 0, 150)
+frame.Position = UDim2.new(0.5, -150, 0.5, -75)
+frame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+frame.BorderSizePixel = 2
+frame.BorderColor3 = Color3.fromRGB(255, 255, 255)
+frame.Active = true
+frame.Draggable = true
+
+local function createButton(name, parent, position)
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0, 60, 0, 60)
+    button.Position = position
+    button.Text = name
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextSize = 12
+    button.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    button.BorderSizePixel = 2
+    button.BorderColor3 = Color3.fromRGB(255, 255, 255)
+    button.Parent = parent
+    return button
+end
+
+local buttonNames = {"Ability 1", "Ability 2", "Ability 3", "Ability 4", "Ability 5", "Ability 6", "Ability 7", "Ability 8"}
+local columns = 4
+local padding = 10
+local startX = padding
+local startY = padding
+
+for i, name in ipairs(buttonNames) do
+    local x = ((i - 1) % columns) * (60 + padding) + startX
+    local y = math.floor((i - 1) / columns) * (60 + padding) + startY
+    local position = UDim2.new(0, x, 0, y)
+    local button = createButton(name, frame, position)
+
+    if name == "Ability 1" then
+        button.MouseButton1Click:Connect(function()
+            fireclickdetector(workspace.Lobby.GloveStands["Ping Pong"].ClickDetector)
+            _G.PingPongFlingAll = not _G.PingPongFlingAll
+
+            local PingPongBall = game.Players.LocalPlayer.Name.."_PingPongBall"
+            local startTime = tick()
+            local duration = 5
+
+            while _G.PingPongFlingAll and tick() - startTime < duration do
+                game:GetService("ReplicatedStorage").GeneralAbility:FireServer()
+                local players = game.Players:GetChildren()
+                local RandomPlayer = players[math.random(1, #players)]
+                repeat
+                    RandomPlayer = players[math.random(1, #players)]
+                until RandomPlayer ~= game.Players.LocalPlayer and RandomPlayer.Character:FindFirstChild("rock") == nil
+                    and RandomPlayer.Character.Head:FindFirstChild("UnoReverseCard") == nil
+                    and RandomPlayer.Character:FindFirstChild("entered")
+
+                local Target = RandomPlayer
+                if Target ~= game.Players.LocalPlayer.Name and Target.Character and Target.Character:WaitForChild("Ragdolled").Value == false then
+                    for i, v in pairs(game.Workspace:GetChildren()) do
+                        if v.ClassName == "Part" and v.Name == PingPongBall then
+                            v.CFrame = Target.Character.HumanoidRootPart.CFrame
+                        end
+                    end
+                end
+                task.wait(0.01)
+            end
+        end)
+    end
+
+    if name == "Ability 2" then
+        button.MouseButton1Click:Connect(function()
+            fireclickdetector(workspace.Lobby.GloveStands["Meteor"].ClickDetector)
+            wait(0.05)
+            local args = {
+                [1] = 24.562499984167516,
+                [2] = 1.233958332752809
+            }
+
+            game:GetService("ReplicatedStorage").GeneralAbility:FireServer(unpack(args))
+        end)
+    end
+
+    if name == "Ability 3" then
+        button.MouseButton1Click:Connect(function()
+            fireclickdetector(workspace.Lobby.GloveStands["Bind"].ClickDetector)
+            wait(0.01)
+            local args = {
+                [1] = "ultimate",
+                [2] = {
+                    ["goal"] = CFrame.new(-13.297222137451172, -5.172851085662842, -95.0539321899414) * CFrame.Angles(-0, -0.27959829568862915, -0),
+                    ["origin"] = CFrame.new(-35.374786376953125, -5.172851085662842, -18.160629272460938) * CFrame.Angles(0, -0.27959829568862915, -0)
+                }
+            }
+
+            game:GetService("ReplicatedStorage").GeneralAbility:FireServer(unpack(args))
+        end)
+    end
+
+    if name == "Ability 4" then
+        local cooldownTime = 60.2
+        local isCooldown = false
+        button.MouseButton1Click:Connect(function()
+            if not isCooldown then
+                fireclickdetector(workspace.Lobby.GloveStands["God's Hand"].ClickDetector)
+                game:GetService("ReplicatedStorage").TimestopJump:FireServer()
+                game:GetService("ReplicatedStorage").Timestopchoir:FireServer()
+                game:GetService("ReplicatedStorage").Timestop:FireServer()
+
+                isCooldown = true
+                button.Text = "Ability 4(CD)"
+                task.wait(cooldownTime)
+                button.Text = "Ability 4"
+                isCooldown = false
+            end
+        end)
+    end
+
+    if name == "Ability 5" then
+        local player = game.Players.LocalPlayer
+        local mouse = player:GetMouse()
+
+        local teleportEnabled = false
+        local originalColor = button.BackgroundColor3
+
+        button.MouseButton1Click:Connect(function()
+            button.BackgroundColor3 = originalColor:Lerp(Color3.fromRGB(255, 255, 255), 0.2)  -- Chuyển lên một chút
+            teleportEnabled = true
+        end)
+
+        mouse.Button1Down:Connect(function()
+            if teleportEnabled then
+                local character = player.Character or player.CharacterAdded:Wait()
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart then
+                    local targetPosition = mouse.Hit.p
+                    humanoidRootPart.CFrame = CFrame.new(targetPosition)
+                end
+                teleportEnabled = false
+                button.BackgroundColor3 = originalColor
+            end
+        end)
+    end
+end
