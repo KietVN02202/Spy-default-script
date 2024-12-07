@@ -1,0 +1,1 @@
+loadstring(game:HttpGet("https://raw.githubusercontent.com/KietVN02202/Custom-glove-Beta-/refs/heads/main/CustomGloveBeta"))()
